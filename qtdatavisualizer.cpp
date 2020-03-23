@@ -19,11 +19,31 @@ QtDataVisualizer::QtDataVisualizer(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::QtDataVisualizer)
 {
+    //UI / Widget Setup
     ui->setupUi(this);
+    qcp = new QCustomPlot();
     QObject::connect(ui->xmax, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
+    QObject::connect(ui->xmin, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
+    QObject::connect(ui->ymax, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
+    QObject::connect(ui->ymin, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
+
+    //Default load_times
     num_logs = 0;
     num_params = 0;
     num_units = 0;
+
+    //Default Params
+    x_index = 0;
+    y_index = new QList<int>();
+    y_index->append(1);
+
+    //Default Display Bounds
+    xmin = 0.0;
+    xmax = 1.01;
+    ymin = 0.0;
+    ymax = 1.01;
+    graph_width = GRAPH_WIDTH;
+    graph_height = GRAPH_HEIGHT;
 }
 
 QtDataVisualizer::~QtDataVisualizer()
@@ -141,56 +161,32 @@ int QtDataVisualizer::load_file(QString filename)
 
 }
 
-int QtDataVisualizer::display_params(int x_index, int y_index, double xmin, double xmax, double ymin, double ymax, int bound_flag)
-{
-    QVector<double> x(num_logs), y(num_logs), z(num_logs);
-    //Copy Values to vector format
-    for(int i =0; i < num_logs; i++){
-        x[i] = data[x_index].values[i];
-        y[i] = data[y_index].values[i];
-    }
+//    //Set Ranges
+//    if(!bound_flag){
+//        qcp->xAxis->setRange(*std::min_element(x.constBegin(), x.constEnd()), *std::max_element(x.constBegin(), x.constEnd()));
+//        qcp->yAxis->setRange(*std::min_element(y.constBegin(), y.constEnd()), *std::max_element(y.constBegin(), y.constEnd()));
+//    }
+//    else{
+//        qcp->xAxis->setRange(xmin, xmax);
+//        qcp->yAxis->setRange(ymin, ymax);
+//    }
 
-    //Populate Widget Taken from this example
-    //https://www.qcustomplot.com/index.php/tutorials/basicplotting
-    QCustomPlot* qcp = new QCustomPlot();
-    ui->scrollArea->setWidget(qcp);
-    qcp->addGraph(qcp->xAxis, qcp->yAxis);
-    qcp->graph(0)->setData(x,y);
-    qcp->graph(0)->setPen(QPen(Qt::blue));
-
-    //Label Axes
-    qcp->xAxis->setLabel(data[x_index].param.toStdString().c_str());
-    qcp->yAxis->setLabel(data[y_index].param.toStdString().c_str());
-
-    //Set Ranges
-    if(!bound_flag){
-        qcp->xAxis->setRange(*std::min_element(x.constBegin(), x.constEnd()), *std::max_element(x.constBegin(), x.constEnd()));
-        qcp->yAxis->setRange(*std::min_element(y.constBegin(), y.constEnd()), *std::max_element(y.constBegin(), y.constEnd()));
-    }
-    else{
-        qcp->xAxis->setRange(xmin, xmax);
-        qcp->yAxis->setRange(ymin, ymax);
-    }
-    qcp->replot();
-    return 0;
-}
-
-int QtDataVisualizer::display_multiplot(QList<int>* y_axis, int x_axis, double xmin, double xmax, double ymin, double ymax, int bound_flag){
+int QtDataVisualizer::display_multiplot(){
     QVector<double> x(num_logs);
-    //Yaxis
-    QVector<double>y_data[y_axis->size()];
-    for(int i = 0; i< y_axis->size(); i++){
+    //Y_axis Populate
+    QVector<double>y_data[y_index->size()];
+    for(int i = 0; i< y_index->size(); i++){
         y_data[i] = QVector<double>(num_logs);
         for(int j = 0; j < num_logs; j++){
             x[j] = data[0].values[j];
-            y_data[i][j] = data[y_axis->at(i)].values[j];
+            y_data[i][j] = data[y_index->at(i)].values[j];
         }
     }
-    QCustomPlot* qcp = new QCustomPlot();
-    qcp->setFixedSize(GRAPH_WIDTH, GRAPH_HEIGHT);
+    //Setup Graph
+    qcp->setFixedSize(graph_width, graph_height);
     ui->scrollArea->setWidget(qcp);
     QColor temp_color;
-    for(int i = 0; i < y_axis->size(); i++){
+    for(int i = 0; i < y_index->size(); i++){
         if(i % 8 == 0 || i % 8 == 7){
             temp_color = QColor(Qt::black);
         }
@@ -204,10 +200,9 @@ int QtDataVisualizer::display_multiplot(QList<int>* y_axis, int x_axis, double x
         qcp->graph(i)->setPen(QPen(temp_color));
     }
     qcp->xAxis->setLabel(data[0].param.toStdString().c_str());
-    qcp->yAxis->setLabel(data[y_axis->at(0)].param.toStdString().c_str());
+    qcp->yAxis->setLabel(data[y_index->at(0)].param.toStdString().c_str());
     qcp->xAxis->setRange(xmin, xmax);
     qcp->yAxis->setRange(ymin, ymax);
-
     return 0;
 }
 
@@ -253,19 +248,28 @@ void QtDataVisualizer::line_parse(std::string line)
 void QtDataVisualizer::update_bounds(){
     //Update Xmax
     if(!ui->xmax->toPlainText().isEmpty()){
-       printf("1");
+       xmax = ui->xmax->toPlainText().toDouble();
     }
     //Update Ymax
     if(!ui->ymax->toPlainText().isEmpty()){
-       printf("1");
+       ymax = ui->ymax->toPlainText().toDouble();
     }
     //Update Ymin
     if(!ui->ymin->toPlainText().isEmpty()){
-        printf("1");
+        ymin = ui->ymin->toPlainText().toDouble();
     }
     //Update Xmin
     if(!ui->xmin->toPlainText().isEmpty()){
-        printf("1");
+        xmin = ui->xmin->toPlainText().toDouble();
     }
+    //Update Plot
+    qcp->replot();
+    ui->scrollArea->setWidget(qcp);
+    this->display_multiplot();
+}
+
+void QtDataVisualizer::setY_index(QList<int> *value)
+{
+    y_index = value;
 }
 

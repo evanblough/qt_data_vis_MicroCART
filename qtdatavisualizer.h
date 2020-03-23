@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QList>
 #include "log_data.h"
+#include "qcustomplot.h"
 
 struct data_point{
     int param_index;
@@ -22,12 +23,12 @@ public:
     explicit QtDataVisualizer(QWidget *parent = nullptr);
     ~QtDataVisualizer();
     int load_file(QString filename);
-    int display_params(int x_index, int y_index, double xmin, double xmax, double ymin, double ymax, int bound_flag);
-    int display_multiplot(QList<int>* y_axis, int x_axis, double xmin, double xmax, double ymin, double ymax, int bound_flag);
+    int display_multiplot();
     int getNum_params() const;
     int getNum_units() const;
     int getNum_logs() const;
     log_data *getData() const;
+    void setY_index(QList<int> *value);
 
 public slots:
     void update_bounds();
@@ -35,6 +36,10 @@ public slots:
 private:
     Ui::QtDataVisualizer *ui;
     log_data *data;
+    double xmin, xmax, ymin, ymax;
+    int x_index, graph_width, graph_height;
+    QList<int>* y_index;
+    QCustomPlot* qcp;
     int num_params, num_units, num_logs;
     void line_parse(std::string line);
 };

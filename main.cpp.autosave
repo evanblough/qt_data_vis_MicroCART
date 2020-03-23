@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
     list->append(18);
     list->append(19);
     qtdv->setY_index(list);
-    //qtdv->display_params(14, 19, 300, 320,-0.5,0.5,0);
     qtdv->display_multiplot();
     //VRPN 17, ALT Setpoint is 14
     qtdv->show();
