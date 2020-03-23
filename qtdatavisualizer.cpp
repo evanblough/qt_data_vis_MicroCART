@@ -172,6 +172,8 @@ int QtDataVisualizer::load_file(QString filename)
 //    }
 
 int QtDataVisualizer::display_multiplot(){
+    delete qcp;
+    qcp = new QCustomPlot();
     QVector<double> x(num_logs);
     //Y_axis Populate
     QVector<double>y_data[y_index->size()];
@@ -186,6 +188,7 @@ int QtDataVisualizer::display_multiplot(){
     qcp->setFixedSize(graph_width, graph_height);
     ui->scrollArea->setWidget(qcp);
     QColor temp_color;
+    qcp->legend->clearItems();
     for(int i = 0; i < y_index->size(); i++){
         if(i % 8 == 0 || i % 8 == 7){
             temp_color = QColor(Qt::black);
@@ -197,12 +200,18 @@ int QtDataVisualizer::display_multiplot(){
         }
         qcp->addGraph(qcp->xAxis, qcp->yAxis);
         qcp->graph(i)->setData(x,y_data[i]);
-        qcp->graph(i)->setPen(QPen(temp_color));
+        qcp->graph(i)->setPen(QPen(temp_color,2,Qt::SolidLine));
+        qcp->graph(i)->addToLegend(qcp->legend);
+        qcp->legend->setIconSize(20, 20);
+        QString name = data[y_index->at(i)].param + " " + data[y_index->at(i)].units;
+        qcp->graph(i)->setName(name);
+
     }
     qcp->xAxis->setLabel(data[0].param.toStdString().c_str());
-    qcp->yAxis->setLabel(data[y_index->at(0)].param.toStdString().c_str());
     qcp->xAxis->setRange(xmin, xmax);
     qcp->yAxis->setRange(ymin, ymax);
+    qcp->legend->setVisible(true);
+
     return 0;
 }
 
@@ -243,7 +252,6 @@ void QtDataVisualizer::line_parse(std::string line)
     }
 
 }
-
 
 void QtDataVisualizer::update_bounds(){
     //Update Xmax

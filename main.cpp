@@ -14,6 +14,9 @@ int main(int argc, char *argv[])
     QtDataVisualizer *qtdv = new QtDataVisualizer();
     qtdv->load_file(FILENAME);
     QList<int> *list = new QList<int>();
+    list->append(12);
+    list->append(13);
+    list->append(14);
     list->append(17);
     list->append(18);
     list->append(19);
