@@ -20,17 +20,20 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     qcustomplot.cpp \
-    qtdatavisualizer.cpp
+    qtdatavisualizer.cpp \
+    toolbar.cpp
 
 HEADERS += \
     log_data.h \
     mainwindow.h \
     qcustomplot.h \
-    qtdatavisualizer.h
+    qtdatavisualizer.h \
+    toolbar.h
 
 FORMS += \
     mainwindow.ui \
-    qtdatavisualizer.ui
+    qtdatavisualizer.ui \
+    toolbar.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

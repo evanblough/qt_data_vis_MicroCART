@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    //w.show();
     QtDataVisualizer *qtdv = new QtDataVisualizer();
     qtdv->load_file(FILENAME);
     QList<int> *list = new QList<int>();
