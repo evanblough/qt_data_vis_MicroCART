@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <QModelIndex>
 #include "qcustomplot.h"
 #include "QTextEdit"
 
@@ -22,10 +23,15 @@ QtDataVisualizer::QtDataVisualizer(QWidget *parent) :
     //UI / Widget Setup
     ui->setupUi(this);
     qcp = new QCustomPlot();
+    tool_bar = new toolbar();
+    button_state = false;
     QObject::connect(ui->xmax, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
     QObject::connect(ui->xmin, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
     QObject::connect(ui->ymax, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
     QObject::connect(ui->ymin, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
+
+    QObject::connect(ui->toolBar, &QPushButton::clicked, this, &QtDataVisualizer::open_toolbar);
+    QObject::connect(tool_bar->open_file, &QPushButton::clicked, this, &QtDataVisualizer::open_file);
 
     //Default load_times
     num_logs = 0;
@@ -58,6 +64,9 @@ QtDataVisualizer::~QtDataVisualizer()
  */
 int QtDataVisualizer::load_file(QString filename)
 {
+    num_logs = 0;
+    num_params = 0;
+    num_units = 0;
     //Open File
     std::ifstream input_file(filename.toStdString().c_str());
     //Determine if valid File path
@@ -279,5 +288,26 @@ void QtDataVisualizer::update_bounds(){
 void QtDataVisualizer::setY_index(QList<int> *value)
 {
     y_index = value;
+}
+
+void QtDataVisualizer::open_toolbar(bool checked){
+    if(!button_state){
+        tool_bar->show();
+        button_state = true;
+    }
+    else{
+        tool_bar->hide();
+        button_state = false;
+    }
+}
+
+void QtDataVisualizer::open_file(bool checked)
+{
+    //Grab File name
+    QModelIndex file_index = tool_bar->file_display->currentIndex();
+    QString abs_path = tool_bar->model->filePath(file_index);
+    printf("%s\n", abs_path.toStdString().c_str());
+    load_file(abs_path);
+    update_bounds();
 }
 

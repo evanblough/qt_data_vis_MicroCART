@@ -5,6 +5,7 @@
 #include <QList>
 #include "log_data.h"
 #include "qcustomplot.h"
+#include "toolbar.h"
 
 struct data_point{
     int param_index;
@@ -32,6 +33,8 @@ public:
 
 public slots:
     void update_bounds();
+    void open_toolbar(bool checked);
+    void open_file(bool checked);
 
 private:
     Ui::QtDataVisualizer *ui;
@@ -40,8 +43,11 @@ private:
     int x_index, graph_width, graph_height;
     QList<int>* y_index;
     QCustomPlot* qcp;
+    toolbar* tool_bar;
+    bool button_state;
     int num_params, num_units, num_logs;
     void line_parse(std::string line);
+
 };
 
 #endif // QTDATAVISUALIZER_H
