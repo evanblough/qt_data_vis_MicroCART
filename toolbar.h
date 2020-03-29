@@ -5,6 +5,8 @@
 #include <QTreeView>
 #include <QPushButton>
 #include <QFileSystemModel>
+#include "log_data.h"
+#include <QVBoxLayout>
 
 namespace Ui {
 class toolbar;
@@ -21,8 +23,15 @@ public:
     QTreeView* file_display;
     QPushButton* open_file, add_y;
     QList<int>* y_params;
-    int x_index, graph_widht, graph_height;
-
+    QVBoxLayout* layout_y_param;
+    log_data* logs;
+    void clearLayout(QLayout *layout);
+    int *x_index;
+    int *graph_width;
+    int *graph_height;
+    void update_state(int param_max, log_data* logs);
+public slots:
+    void addYParam(bool checked);
 private:
     Ui::toolbar *ui;
 };

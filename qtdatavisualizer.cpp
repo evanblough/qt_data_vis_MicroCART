@@ -5,11 +5,11 @@
 #include <sstream>
 #include <algorithm>
 #include <QModelIndex>
+#include <QSpinBox>
 #include "qcustomplot.h"
 #include "QTextEdit"
 
-#define GRAPH_WIDTH 1440
-#define GRAPH_HEIGHT 720
+
 
 /**
  * @brief QtDataVisualizer::QtDataVisualizer Widget Class that can be used to display postflight logfiles from MicroCART Drone
@@ -39,17 +39,16 @@ QtDataVisualizer::QtDataVisualizer(QWidget *parent) :
     num_units = 0;
 
     //Default Params
-    x_index = 0;
-    y_index = new QList<int>();
-    y_index->append(1);
-
+    x_index = tool_bar->x_index;
+    y_index = tool_bar->y_params;
+    graph_width = tool_bar->graph_width;
+    graph_height = tool_bar->graph_height;
     //Default Display Bounds
     xmin = 0.0;
     xmax = 1.01;
     ymin = 0.0;
     ymax = 1.01;
-    graph_width = GRAPH_WIDTH;
-    graph_height = GRAPH_HEIGHT;
+
 }
 
 QtDataVisualizer::~QtDataVisualizer()
@@ -146,6 +145,9 @@ int QtDataVisualizer::load_file(QString filename)
             while(unit_index < num_units){
                 //TODO check last case
                 if(std::getline(linestream, buffer, '\t')){
+                    if(buffer.at(0) == '&'){
+                        buffer.erase(0, 1);
+                    }
                     data[unit_index++].units = QString::fromStdString(buffer);
                 }
             }
@@ -166,6 +168,7 @@ int QtDataVisualizer::load_file(QString filename)
         }
 
     }
+    tool_bar->update_state(num_params, data);
     return 0;
 
 }
@@ -189,12 +192,12 @@ int QtDataVisualizer::display_multiplot(){
     for(int i = 0; i< y_index->size(); i++){
         y_data[i] = QVector<double>(num_logs);
         for(int j = 0; j < num_logs; j++){
-            x[j] = data[0].values[j];
+            x[j] = data[*x_index].values[j];
             y_data[i][j] = data[y_index->at(i)].values[j];
         }
     }
     //Setup Graph
-    qcp->setFixedSize(graph_width, graph_height);
+    qcp->setFixedSize(*graph_width, *graph_height);
     ui->scrollArea->setWidget(qcp);
     QColor temp_color;
     qcp->legend->clearItems();
@@ -251,6 +254,9 @@ void QtDataVisualizer::line_parse(std::string line)
 
     for(int i = 0; i < line.length(); i++){
         if(line.at(i) != '\t'){
+            if(line.at(i)  == '%'){
+                i++;
+            }
             std::string s(1, line.at(i));
             buffer.append(s);
         }

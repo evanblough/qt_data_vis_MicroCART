@@ -20,6 +20,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     qcustomplot.cpp \
+    qspinparam.cpp \
     qtdatavisualizer.cpp \
     toolbar.cpp
 
@@ -27,6 +28,7 @@ HEADERS += \
     log_data.h \
     mainwindow.h \
     qcustomplot.h \
+    qspinparam.h \
     qtdatavisualizer.h \
     toolbar.h
 

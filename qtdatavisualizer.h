@@ -40,7 +40,9 @@ private:
     Ui::QtDataVisualizer *ui;
     log_data *data;
     double xmin, xmax, ymin, ymax;
-    int x_index, graph_width, graph_height;
+    int *x_index;
+    int* graph_width;
+    int* graph_height;
     QList<int>* y_index;
     QCustomPlot* qcp;
     toolbar* tool_bar;
