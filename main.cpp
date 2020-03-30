@@ -13,14 +13,6 @@ int main(int argc, char *argv[])
     //tb->show();
     QtDataVisualizer *qtdv = new QtDataVisualizer();
     qtdv->load_file(FILENAME);
-    QList<int> *list = new QList<int>();
-    list->append(12);
-    list->append(13);
-    list->append(14);
-    list->append(17);
-    list->append(18);
-    list->append(19);
-    qtdv->setY_index(list);
     qtdv->display_multiplot();
     qtdv->show();
     return a.exec();

@@ -12,6 +12,7 @@ class qSpinParam : public QSpinBox
 public:
     explicit qSpinParam(QWidget *parent = nullptr);
     QString textFromValue(int value) const override;
+    int index;
     void update_params(log_data* log_datas);
     log_data* logs;
 signals:

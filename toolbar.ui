@@ -65,7 +65,7 @@
     </widget>
    </item>
    <item row="8" column="0">
-    <widget class="qspinparam" name="x_select"/>
+    <widget class="qSpinParam" name="x_select"/>
    </item>
    <item row="11" column="0" colspan="2">
     <widget class="QScrollArea" name="multiY">
@@ -92,13 +92,13 @@
     </widget>
    </item>
    <item row="8" column="1">
-    <widget class="qspinparam" name="y_select"/>
+    <widget class="qSpinParam" name="y_select"/>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>qspinparam</class>
+   <class>qSpinParam</class>
    <extends>QSpinBox</extends>
    <header>qspinparam.h</header>
   </customwidget>

@@ -22,16 +22,20 @@ QtDataVisualizer::QtDataVisualizer(QWidget *parent) :
 {
     //UI / Widget Setup
     ui->setupUi(this);
+    //QCustomPlot is the widget used to plot the data
     qcp = new QCustomPlot();
+    //The toolbar allows a user to select log files and parameters to be graphed
     tool_bar = new toolbar();
     button_state = false;
+    //Connect signals to update graph bounds based on the textbox files
     QObject::connect(ui->xmax, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
     QObject::connect(ui->xmin, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
     QObject::connect(ui->ymax, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
     QObject::connect(ui->ymin, &QTextEdit::textChanged , this, &QtDataVisualizer::update_bounds);
-
+    //Connect tool bar signals
     QObject::connect(ui->toolBar, &QPushButton::clicked, this, &QtDataVisualizer::open_toolbar);
     QObject::connect(tool_bar->open_file, &QPushButton::clicked, this, &QtDataVisualizer::open_file);
+    QObject::connect(tool_bar, SIGNAL(update_graph()), this, SLOT(update_bounds()));
 
     //Default load_times
     num_logs = 0;
@@ -183,6 +187,11 @@ int QtDataVisualizer::load_file(QString filename)
 //        qcp->yAxis->setRange(ymin, ymax);
 //    }
 
+/**
+ * @brief QtDataVisualizer::display_multiplot This function is called to display a graph on the QCustomPlot widget that
+ * matches the data selection of the current data log file, x axis,and  y axis parameters
+ * @return zero on success
+ */
 int QtDataVisualizer::display_multiplot(){
     delete qcp;
     qcp = new QCustomPlot();
@@ -226,27 +235,42 @@ int QtDataVisualizer::display_multiplot(){
 
     return 0;
 }
-
+/**
+ * @brief QtDataVisualizer::getNum_params
+ * @return
+ */
 int QtDataVisualizer::getNum_params() const
 {
     return num_params;
 }
-
+/**
+ * @brief QtDataVisualizer::getNum_units
+ * @return
+ */
 int QtDataVisualizer::getNum_units() const
 {
     return num_units;
 }
-
+/**
+ * @brief QtDataVisualizer::getNum_logs
+ * @return
+ */
 int QtDataVisualizer::getNum_logs() const
 {
     return num_logs;
 }
-
+/**
+ * @brief QtDataVisualizer::getData
+ * @return
+ */
 log_data *QtDataVisualizer::getData() const
 {
     return data;
 }
-
+/**
+ * @brief QtDataVisualizer::line_parse this function  is called to parse a single line of log data.
+ * @param line
+ */
 void QtDataVisualizer::line_parse(std::string line)
 {
     int param_index = 0;
@@ -267,7 +291,10 @@ void QtDataVisualizer::line_parse(std::string line)
     }
 
 }
-
+/**
+ * @brief QtDataVisualizer::update_bounds this slot is triggered whenever the bounds are updated
+ * It updates the new bounds and replots the data.
+ */
 void QtDataVisualizer::update_bounds(){
     //Update Xmax
     if(!ui->xmax->toPlainText().isEmpty()){
@@ -290,12 +317,18 @@ void QtDataVisualizer::update_bounds(){
     ui->scrollArea->setWidget(qcp);
     this->display_multiplot();
 }
-
+/**
+ * @brief QtDataVisualizer::setY_index
+ * @param value
+ */
 void QtDataVisualizer::setY_index(QList<int> *value)
 {
     y_index = value;
 }
-
+/**
+ * @brief QtDataVisualizer::open_toolbar opens the toolbar widget
+ * @param checked
+ */
 void QtDataVisualizer::open_toolbar(bool checked){
     if(!button_state){
         tool_bar->show();
@@ -306,7 +339,10 @@ void QtDataVisualizer::open_toolbar(bool checked){
         button_state = false;
     }
 }
-
+/**
+ * @brief QtDataVisualizer::open_file This slot is called to open a new data file
+ * @param checked
+ */
 void QtDataVisualizer::open_file(bool checked)
 {
     //Grab File name

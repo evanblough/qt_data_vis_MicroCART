@@ -29,9 +29,14 @@ public:
     int *x_index;
     int *graph_width;
     int *graph_height;
+    int  param_max;
     void update_state(int param_max, log_data* logs);
 public slots:
     void addYParam(bool checked);
+    void yParamChanged(int i);
+
+signals:
+    void update_graph();
 private:
     Ui::toolbar *ui;
 };
